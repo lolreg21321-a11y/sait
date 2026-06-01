@@ -34,7 +34,6 @@
             align-items: flex-start;
         }
 
-        /* Задний фон с размытыми фигурами для усиления эффекта стекла */
         .bg-glow {
             position: fixed;
             width: 400px;
@@ -71,7 +70,6 @@
             gap: 25px;
         }
 
-        /* Верхняя панель управления */
         .header-panel {
             display: flex;
             flex-direction: column;
@@ -129,7 +127,6 @@
             cursor: pointer;
         }
 
-        /* Главная рабочая зона: Сетка */
         .main-content {
             display: grid;
             grid-template-columns: 300px 1fr;
@@ -149,7 +146,6 @@
             }
         }
 
-        /* Сайдбар управления пользователями */
         .sidebar {
             background: rgba(255, 255, 255, 0.3);
             padding: 20px;
@@ -191,7 +187,6 @@
             box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.15);
         }
 
-        /* Кнопки */
         .btn {
             padding: 10px 16px;
             border-radius: 10px;
@@ -231,7 +226,6 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
 
-        /* Список / Таблица учета часов */
         .hours-panel {
             background: rgba(255, 255, 255, 0.2);
             border-radius: 18px;
@@ -279,7 +273,6 @@
             padding-right: 10px;
         }
 
-        /* Кастомный селект часов */
         select {
             padding: 8px 12px;
             border-radius: 8px;
@@ -297,7 +290,6 @@
             border-color: var(--primary-color);
         }
 
-        /* Кнопка удаления */
         .btn-delete {
             background: transparent;
             border: none;
@@ -316,7 +308,6 @@
             color: var(--danger-color);
         }
 
-        /* Пустое состояние */
         .empty-state {
             text-align: center;
             padding: 40px 20px;
@@ -338,7 +329,7 @@
     <div class="container">
         <header class="header-panel">
             <div class="header-title-zone">
-                <h1>Учет часов практикантов</h1>
+                <h1>Учет часов практикантов (Облачный)</h1>
                 <button class="btn btn-secondary" id="exportBtn">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                     Скачать отчет (CSV)
@@ -368,76 +359,91 @@
                     <div>Часы</div>
                     <div>Действие</div>
                 </div>
-                <div id="internsListContainer">
-                    </div>
+                <div id="internsListContainer"></div>
             </section>
         </main>
     </div>
 
+    <!-- Подключаем облачную базу данных Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
     <script>
-        // --- Константы и Инициализация состояния ---
-        const STORAGE_KEY = 'practiceHours';
+        // --- Настройка Базы Данных ---
+        // ⚠️ ВСТАВЬ СВОЮ ССЫЛКУ МЕЖДУ КАВЫЧКАМИ НИЖЕ:
+        const firebaseConfig = {
+            databaseURL: "https://my-hours-db-default-rtdb.firebaseio.com/"
+        };
         
+        let db;
+        let isFirebaseReady = false;
+        
+        if (firebaseConfig.databaseURL.includes("ПЕРЕИМЕНУЙТЕ")) {
+            console.warn("База данных Firebase еще не подключена. Используется локальная память браузера.");
+        } else {
+            firebase.initializeApp(firebaseConfig);
+            db = firebase.database();
+            isFirebaseReady = true;
+        }
+
         let state = {
             interns: [],
             logs: {}
         };
 
-        // Локальный кэш строки localStorage для выявления изменений из других вкладок
-        let lastStorageRawString = '';
-
-        // --- Элементы DOM ---
         const dateInput = document.getElementById('dateInput');
         const internsListContainer = document.getElementById('internsListContainer');
         const addInternForm = document.getElementById('addInternForm');
         const internNameInput = document.getElementById('internNameInput');
         const exportBtn = document.getElementById('exportBtn');
 
-        // Установка текущей даты по умолчанию (в часовом поясе пользователя)
         const today = new Date().toISOString().split('T')[0];
         dateInput.value = today;
 
-        // --- Функции логики данных ---
-
-        // Загрузка данных из localStorage
-        function loadData() {
-            const rawData = localStorage.getItem(STORAGE_KEY);
-            lastStorageRawString = rawData; // Сохраняем слепок для таймера синхронизации
-
-            if (rawData) {
-                try {
-                    state = JSON.parse(rawData);
-                    // На всякий случай проверяем валидность структуры
-                    if (!state.interns) state.interns = [];
-                    if (!state.logs) state.logs = {};
-                } catch (e) {
-                    console.error("Ошибка парсинга данных из localStorage, создаем чистую структуру.", e);
-                    initEmptyState();
-                }
+        // --- Загрузка данных в реальном времени ---
+        function initDataSync() {
+            if (isFirebaseReady) {
+                db.ref('practiceHoursCloud').on('value', (snapshot) => {
+                    const data = snapshot.val();
+                    if (data) {
+                        state = data;
+                        if (!state.interns) state.interns = [];
+                        if (!state.logs) state.logs = {};
+                    } else {
+                        state = { interns: [], logs: {} };
+                    }
+                    render();
+                });
             } else {
-                initEmptyState();
+                const rawData = localStorage.getItem('practiceHours');
+                if (rawData) {
+                    try {
+                        state = JSON.parse(rawData);
+                        if (!state.interns) state.interns = [];
+                        if (!state.logs) state.logs = {};
+                    } catch (e) {
+                        state = { interns: [], logs: {} };
+                    }
+                }
+                render();
             }
         }
 
-        function initEmptyState() {
-            state = { interns: [], logs: {} };
-            saveData();
-        }
-
-        // Сохранение данных
+        // --- Сохранение данных ---
         function saveData() {
-            const stringified = JSON.stringify(state);
-            localStorage.setItem(STORAGE_KEY, stringified);
-            lastStorageRawString = stringified; // Обновляем локальный слепок, чтобы не триггерить автообновление на этой же вкладке
+            if (isFirebaseReady) {
+                db.ref('practiceHoursCloud').set(state);
+            } else {
+                localStorage.setItem('practiceHours', JSON.stringify(state));
+            }
         }
 
         // --- Интерфейс и Рендеринг ---
-
         function render() {
             const selectedDate = dateInput.value;
             internsListContainer.innerHTML = '';
 
-            if (state.interns.length === 0) {
+            if (!state.interns || state.interns.length === 0) {
                 internsListContainer.innerHTML = `
                     <div class="empty-state">
                         Список стажеров пуст. Добавьте стажеров в левой панели.
@@ -446,7 +452,6 @@
                 return;
             }
 
-            // Получаем или создаем объект логов на выбранный день
             const dayLogs = state.logs[selectedDate] || {};
 
             state.interns.forEach(internName => {
@@ -455,13 +460,11 @@
                 const row = document.createElement('div');
                 row.className = 'intern-row';
 
-                // Имя
                 const nameDiv = document.createElement('div');
                 nameDiv.className = 'intern-name';
                 nameDiv.textContent = internName;
                 nameDiv.title = internName;
 
-                // Выпадающий список часов
                 const selectDiv = document.createElement('div');
                 const select = document.createElement('select');
                 for (let i = 0; i <= 10; i++) {
@@ -472,13 +475,11 @@
                     select.appendChild(option);
                 }
                 
-                // Слушатель изменения часов
                 select.addEventListener('change', (e) => {
                     updateHours(selectedDate, internName, parseInt(e.target.value, 10));
                 });
                 selectDiv.appendChild(select);
 
-                // Кнопка удаления стажера
                 const deleteDiv = document.createElement('div');
                 const deleteBtn = document.createElement('button');
                 deleteBtn.className = 'btn-delete';
@@ -501,14 +502,14 @@
             });
         }
 
-        // --- Управление событиями системы ---
-
+        // --- Управление событиями ---
         function updateHours(date, name, hours) {
             if (!state.logs[date]) {
                 state.logs[date] = {};
             }
             state.logs[date][name] = hours;
             saveData();
+            if(!isFirebaseReady) render(); 
         }
 
         function addIntern() {
@@ -523,43 +524,35 @@
             state.interns.push(name);
             internNameInput.value = '';
             saveData();
-            render();
+            if(!isFirebaseReady) render();
         }
 
         function deleteIntern(name) {
             state.interns = state.interns.filter(i => i !== name);
             saveData();
-            render();
+            if(!isFirebaseReady) render();
         }
 
         // Экспорт в CSV файл
         function exportToCSV() {
-            // Собираем все уникальные даты для построения структурированного отчета
-            const allDates = Object.keys(state.logs).sort();
-            
-            if (allDates.length === 0) {
+            if (!state.logs || Object.keys(state.logs).length === 0) {
                 alert('Нет данных для выгрузки отчета.');
                 return;
             }
-
-            // Формируем CSV. Спецификация BOM для корректного открытия кириллицы в Excel
+            const allDates = Object.keys(state.logs).sort();
             let csvContent = "\uFEFF"; 
-            
-            // Заголовки столбцов: Дата, Имя стажера, Отработано часов
             csvContent += "Дата;Стажер;Отработано часов\n";
 
             allDates.forEach(date => {
                 const dayLogs = state.logs[date];
                 for (const [internName, hours] of Object.entries(dayLogs)) {
-                    if (hours > 0) { // Экспортируем только ненулевые часы для чистоты отчета
-                        // Экранируем кавычки на всякий случай
+                    if (hours > 0) {
                         const safeName = internName.replace(/"/g, '""');
                         csvContent += `${date};"${safeName}";${hours}\n`;
                     }
                 }
             });
 
-            // Создание скачиваемого файла
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
             const link = document.createElement("a");
@@ -570,37 +563,11 @@
             document.body.removeChild(link);
         }
 
-        // --- Реалтайм Синхронизация (setInterval) ---
-        function startSyncTimer() {
-            setInterval(() => {
-                const currentRawString = localStorage.getItem(STORAGE_KEY);
-                
-                // Если строка в localStorage изменилась по сравнению с нашей локальной копией
-                if (currentRawString !== lastStorageRawString) {
-                    loadData();
-                    render();
-                }
-            }, 2500); // Проверка каждые 2.5 секунды согласно ТЗ
-        }
-
-        // Альтернативный нативный обработчик событий хранилища (работает мгновенно для вкладок)
-        window.addEventListener('storage', (e) => {
-            if (e.key === STORAGE_KEY) {
-                loadData();
-                render();
-            }
-        });
-
-        // --- Привязка триггеров к UI ---
         addInternForm.addEventListener('submit', addIntern);
         dateInput.addEventListener('change', render);
         exportBtn.addEventListener('click', exportToCSV);
 
-        // Старт приложения
-        loadData();
-        render();
-        startSyncTimer();
-
+        initDataSync();
     </script>
 </body>
 </html>
