@@ -7,12 +7,17 @@
     <style>
         :root {
             --primary-color: #0071e3;
+            --primary-hover: #0077ed;
             --danger-color: #ff3b30;
-            --bg-gradient: linear-gradient(135deg, #c3cfe2 0%, #c3cfe2 100%);
-            --glass-bg: rgba(255, 255, 255, 0.4);
-            --glass-border: rgba(255, 255, 255, 0.4);
+            --danger-bg: rgba(255, 59, 48, 0.1);
+            --glass-bg: rgba(255, 255, 255, 0.45);
+            --glass-border: rgba(255, 255, 255, 0.6);
             --text-color: #1d1d1f;
-            --text-secondary: #86868b;
+            --text-secondary: #6e6e73;
+            --radius-xl: 24px;
+            --radius-lg: 16px;
+            --radius-md: 12px;
+            --shadow-smooth: 0 8px 32px 0 rgba(31, 38, 135, 0.08);
         }
 
         * {
@@ -24,58 +29,76 @@
         }
 
         body {
-            background: linear-gradient(135deg, #e2e8f0 0%, #e2e8f0 40%, #cbd5e1 100%);
+            background: #f5f5f7;
             background-attachment: fixed;
             color: var(--text-color);
             min-height: 100vh;
-            padding: 20px;
+            padding: 40px 20px;
             display: flex;
             justify-content: center;
             align-items: flex-start;
+            overflow-x: hidden;
+            position: relative;
         }
 
+        /* Анимированный интерактивный фон */
         .bg-glow {
             position: fixed;
-            width: 400px;
-            height: 400px;
-            background: radial-gradient(circle, rgba(14,165,233,0.15) 0%, rgba(255,255,255,0) 70%);
-            top: 10%;
-            left: 10%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(14,165,233,0.2) 0%, rgba(255,255,255,0) 70%);
+            top: -10%;
+            left: -10%;
             z-index: -1;
-            filter: blur(40px);
+            filter: blur(60px);
+            animation: floatGlow 12s infinite alternate ease-in-out;
         }
         .bg-glow-2 {
             position: fixed;
-            width: 500px;
-            height: 500px;
-            background: radial-gradient(circle, rgba(236,72,153,0.1) 0%, rgba(255,255,255,0) 70%);
-            bottom: 10%;
-            right: 10%;
+            width: 700px;
+            height: 700px;
+            background: radial-gradient(circle, rgba(236,72,153,0.15) 0%, rgba(255,255,255,0) 70%);
+            bottom: -10%;
+            right: -10%;
             z-index: -1;
-            filter: blur(50px);
+            filter: blur(70px);
+            animation: floatGlow 18s infinite alternate-reverse ease-in-out;
         }
 
+        @keyframes floatGlow {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(80px, 50px) scale(1.15); }
+        }
+
+        /* Главный контейнер с плавной анимацией появления */
         .container {
             width: 100%;
-            max-width: 1000px;
+            max-width: 1050px;
             background: var(--glass-bg);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
             border: 1px solid var(--glass-border);
-            border-radius: 24px;
-            padding: 30px;
-            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.06);
+            border-radius: var(--radius-xl);
+            padding: 35px;
+            box-shadow: var(--shadow-smooth);
             display: grid;
             grid-template-columns: 1fr;
-            gap: 25px;
+            gap: 30px;
+            animation: appAppear 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
+        @keyframes appAppear {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Верхняя панель */
         .header-panel {
             display: flex;
             flex-direction: column;
             gap: 20px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            padding-bottom: 25px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.06);
         }
 
         .header-title-zone {
@@ -83,220 +106,240 @@
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 15px;
+            gap: 20px;
         }
 
         h1 {
-            font-size: 24px;
-            font-weight: 600;
+            font-size: 28px;
+            font-weight: 700;
             letter-spacing: -0.5px;
+            background: linear-gradient(180deg, #1d1d1f 0%, #434344 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         .controls-zone {
             display: flex;
             align-items: center;
             gap: 15px;
-            flex-wrap: wrap;
-            width: 100%;
-            justify-content: space-between;
         }
 
         .date-picker-wrapper {
             display: flex;
             align-items: center;
-            gap: 10px;
-            background: rgba(255, 255, 255, 0.5);
-            padding: 6px 12px;
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.5);
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.6);
+            padding: 8px 16px;
+            border-radius: var(--radius-md);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+            transition: all 0.3s ease;
+        }
+
+        .date-picker-wrapper:focus-within {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.12);
         }
 
         .date-picker-wrapper label {
             font-size: 14px;
             color: var(--text-secondary);
-            font-weight: 500;
+            font-weight: 600;
         }
 
         input[type="date"] {
             border: none;
             background: transparent;
             font-size: 15px;
-            font-weight: 500;
+            font-weight: 600;
             color: var(--text-color);
             outline: none;
             cursor: pointer;
         }
 
+        /* Двухколоночный контент */
         .main-content {
             display: grid;
-            grid-template-columns: 300px 1fr;
-            gap: 25px;
+            grid-template-columns: 310px 1fr;
+            gap: 30px;
         }
 
-        @media (max-width: 768px) {
-            .main-content {
-                grid-template-columns: 1fr;
-            }
-            .controls-zone {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            .date-picker-wrapper {
-                justify-content: space-between;
-            }
-        }
-
+        /* Сайдбар */
         .sidebar {
-            background: rgba(255, 255, 255, 0.3);
-            padding: 20px;
-            border-radius: 18px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.4);
+            padding: 24px;
+            border-radius: var(--radius-lg);
+            border: 1px solid rgba(255, 255, 255, 0.4);
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 18px;
             height: fit-content;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.01);
         }
 
         .sidebar h2 {
-            font-size: 16px;
-            font-weight: 600;
+            font-size: 13px;
+            font-weight: 700;
             color: var(--text-secondary);
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 1px;
         }
 
         .add-intern-form {
             display: flex;
-            gap: 8px;
+            gap: 10px;
         }
 
         input[type="text"] {
             flex: 1;
-            padding: 10px 14px;
-            border-radius: 10px;
-            border: 1px solid rgba(0, 0, 0, 0.1);
-            background: rgba(255, 255, 255, 0.6);
+            padding: 12px 16px;
+            border-radius: var(--radius-md);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            background: rgba(255, 255, 255, 0.7);
             font-size: 14px;
+            font-weight: 500;
             outline: none;
-            transition: all 0.2s ease;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         input[type="text"]:focus {
             border-color: var(--primary-color);
-            background: rgba(255, 255, 255, 0.9);
-            box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.15);
+            background: #fff;
+            box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.12);
         }
 
+        /* Кнопки */
         .btn {
-            padding: 10px 16px;
-            border-radius: 10px;
+            padding: 12px 20px;
+            border-radius: var(--radius-md);
             border: none;
             font-size: 14px;
-            font-weight: 500;
+            font-weight: 600;
             cursor: pointer;
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 6px;
+            gap: 8px;
         }
 
         .btn-primary {
             background: var(--primary-color);
             color: white;
+            box-shadow: 0 2px 8px rgba(0, 113, 227, 0.2);
         }
 
         .btn-primary:hover {
-            background: #0077ed;
+            background: var(--primary-hover);
             transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 113, 227, 0.3);
         }
 
         .btn-primary:active {
-            transform: translateY(0);
+            transform: translateY(1px);
         }
 
         .btn-secondary {
-            background: rgba(255, 255, 255, 0.6);
+            background: rgba(255, 255, 255, 0.7);
             color: var(--text-color);
-            border: 1px solid rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(0, 0, 0, 0.06);
         }
 
         .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.8);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            background: #fff;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
         }
 
+        #addInternBtn {
+            padding: 12px 18px;
+            font-size: 18px;
+        }
+
+        /* Таблица / Список часов */
         .hours-panel {
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 18px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 20px;
-            overflow: hidden;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: var(--radius-lg);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            padding: 24px;
         }
 
         .table-header {
             display: grid;
             grid-template-columns: 1fr 140px auto;
-            padding: 10px 15px;
+            padding: 0 16px 12px 16px;
             font-weight: 600;
             color: var(--text-secondary);
-            font-size: 14px;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
             border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-            margin-bottom: 10px;
+            margin-bottom: 12px;
         }
 
+        /* Строка стажера с плавной анимацией появления */
         .intern-row {
             display: grid;
             grid-template-columns: 1fr 140px auto;
             align-items: center;
-            padding: 12px 15px;
-            background: rgba(255, 255, 255, 0.4);
-            margin-bottom: 8px;
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            transition: all 0.2s ease;
-            animation: fadeIn 0.3s ease;
+            padding: 14px 16px;
+            background: rgba(255, 255, 255, 0.6);
+            margin-bottom: 10px;
+            border-radius: var(--radius-md);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.01);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: rowAppear 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        @keyframes rowAppear {
+            from { opacity: 0; transform: translateY(15px) scale(0.97); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
         }
 
         .intern-row:hover {
-            background: rgba(255, 255, 255, 0.6);
-            transform: scale(1.005);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+            background: #fff;
+            transform: translateY(-2px) scale(1.005);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.04);
+            border-color: rgba(0, 113, 227, 0.15);
         }
 
         .intern-name {
-            font-weight: 500;
-            font-size: 15px;
+            font-weight: 600;
+            font-size: 16px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            padding-right: 10px;
+            padding-right: 15px;
+            color: #1d1d1f;
         }
 
         select {
-            padding: 8px 12px;
-            border-radius: 8px;
-            border: 1px solid rgba(0, 0, 0, 0.1);
-            background: rgba(255, 255, 255, 0.8);
+            padding: 10px 14px;
+            border-radius: 10px;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            background: rgba(255, 255, 255, 0.9);
             font-size: 14px;
-            font-weight: 500;
+            font-weight: 600;
             outline: none;
             cursor: pointer;
             transition: all 0.2s ease;
             width: 120px;
+            color: var(--text-color);
         }
 
         select:focus {
             border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.1);
         }
 
         .btn-delete {
             background: transparent;
             border: none;
-            color: var(--text-secondary);
+            color: #a1a1a6;
             cursor: pointer;
-            padding: 8px;
-            border-radius: 8px;
+            padding: 10px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -304,20 +347,77 @@
         }
 
         .btn-delete:hover {
-            background: rgba(255, 59, 48, 0.1);
+            background: var(--danger-bg);
             color: var(--danger-color);
+            transform: scale(1.05);
         }
 
         .empty-state {
             text-align: center;
-            padding: 40px 20px;
+            padding: 50px 20px;
             color: var(--text-secondary);
             font-size: 15px;
+            font-weight: 500;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(5px); }
-            to { opacity: 1; transform: translateY(0); }
+        /* Адаптив для мобильных устройств */
+        @media (max-width: 850px) {
+            body {
+                padding: 15px 10px;
+            }
+            .container {
+                padding: 20px;
+                gap: 20px;
+                border-radius: var(--radius-lg);
+            }
+            h1 {
+                font-size: 22px;
+            }
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            .header-title-zone {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 12px;
+            }
+            .btn-secondary {
+                width: 100%;
+            }
+            .controls-zone {
+                width: 100%;
+            }
+            .date-picker-wrapper {
+                width: 100%;
+                justify-content: space-between;
+            }
+            .table-header {
+                display: none;
+            }
+            
+            .intern-row {
+                grid-template-columns: 1fr auto;
+                gap: 12px;
+                padding: 16px;
+                position: relative;
+            }
+            .intern-name {
+                grid-column: 1 / -1;
+                font-size: 16px;
+                padding-bottom: 8px;
+                border-bottom: 1px solid rgba(0,0,0,0.04);
+                margin-bottom: 4px;
+            }
+            select {
+                width: 140px;
+                padding: 12px;
+            }
+            .btn-delete {
+                background: var(--danger-bg);
+                color: var(--danger-color);
+                padding: 12px 16px;
+            }
         }
     </style>
 </head>
@@ -329,7 +429,7 @@
     <div class="container">
         <header class="header-panel">
             <div class="header-title-zone">
-                <h1>Учет часов практикантов (Облачный)</h1>
+                <h1>Учет часов практикантов</h1>
                 <button class="btn btn-secondary" id="exportBtn">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                     Скачать отчет (CSV)
@@ -364,13 +464,12 @@
         </main>
     </div>
 
-    <!-- Подключаем облачную базу данных Firebase -->
+    <!-- Облако Firebase -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <script>
         // --- Настройка Базы Данных ---
-        // ⚠️ ВСТАВЬ СВОЮ ССЫЛКУ МЕЖДУ КАВЫЧКАМИ НИЖЕ:
         const firebaseConfig = {
             databaseURL: "https://my-hours-db-default-rtdb.firebaseio.com/"
         };
@@ -400,7 +499,6 @@
         const today = new Date().toISOString().split('T')[0];
         dateInput.value = today;
 
-        // --- Загрузка данных в реальном времени ---
         function initDataSync() {
             if (isFirebaseReady) {
                 db.ref('practiceHoursCloud').on('value', (snapshot) => {
@@ -429,7 +527,6 @@
             }
         }
 
-        // --- Сохранение данных ---
         function saveData() {
             if (isFirebaseReady) {
                 db.ref('practiceHoursCloud').set(state);
@@ -438,7 +535,6 @@
             }
         }
 
-        // --- Интерфейс и Рендеринг ---
         function render() {
             const selectedDate = dateInput.value;
             internsListContainer.innerHTML = '';
@@ -502,7 +598,6 @@
             });
         }
 
-        // --- Управление событиями ---
         function updateHours(date, name, hours) {
             if (!state.logs[date]) {
                 state.logs[date] = {};
@@ -533,7 +628,6 @@
             if(!isFirebaseReady) render();
         }
 
-        // Экспорт в CSV файл
         function exportToCSV() {
             if (!state.logs || Object.keys(state.logs).length === 0) {
                 alert('Нет данных для выгрузки отчета.');
