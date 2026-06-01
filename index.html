@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Учет рабочих часов стажеров</title>
+    <style>
+        :root {
+            --primary-color: #0071e3;
+            --danger-color: #ff3b30;
+            --bg-gradient: linear-gradient(135deg, #c3cfe2 0%, #c3cfe2 100%);
+            --glass-bg: rgba(255, 255, 255, 0.4);
+            --glass-border: rgba(255, 255, 255, 0.4);
+            --text-color: #1d1d1f;
+            --text-secondary: #86868b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            background: linear-gradient(135deg, #e2e8f0 0%, #e2e8f0 40%, #cbd5e1 100%);
+            background-attachment: fixed;
+            color: var(--text-color);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        /* Задний фон с размытыми фигурами для усиления эффекта стекла */
+        .bg-glow {
+            position: fixed;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(14,165,233,0.15) 0%, rgba(255,255,255,0) 70%);
+            top: 10%;
+            left: 10%;
+            z-index: -1;
+            filter: blur(40px);
+        }
+        .bg-glow-2 {
+            position: fixed;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(236,72,153,0.1) 0%, rgba(255,255,255,0) 70%);
+            bottom: 10%;
+            right: 10%;
+            z-index: -1;
+            filter: blur(50px);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1000px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.06);
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 25px;
+        }
+
+        /* Верхняя панель управления */
+        .header-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .header-title-zone {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+        }
+
+        .controls-zone {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            width: 100%;
+            justify-content: space-between;
+        }
+
+        .date-picker-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.5);
+            padding: 6px 12px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .date-picker-wrapper label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        input[type="date"] {
+            border: none;
+            background: transparent;
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--text-color);
+            outline: none;
+            cursor: pointer;
+        }
+
+        /* Главная рабочая зона: Сетка */
+        .main-content {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 25px;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            .controls-zone {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .date-picker-wrapper {
+                justify-content: space-between;
+            }
+        }
+
+        /* Сайдбар управления пользователями */
+        .sidebar {
+            background: rgba(255, 255, 255, 0.3);
+            padding: 20px;
+            border-radius: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            height: fit-content;
+        }
+
+        .sidebar h2 {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .add-intern-form {
+            display: flex;
+            gap: 8px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 10px 14px;
+            border-radius: 10px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            background: rgba(255, 255, 255, 0.6);
+            font-size: 14px;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--primary-color);
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.15);
+        }
+
+        /* Кнопки */
+        .btn {
+            padding: 10px 16px;
+            border-radius: 10px;
+            border: none;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0077ed;
+            transform: translateY(-1px);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.6);
+            color: var(--text-color);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        /* Список / Таблица учета часов */
+        .hours-panel {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        .table-header {
+            display: grid;
+            grid-template-columns: 1fr 140px auto;
+            padding: 10px 15px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 14px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            margin-bottom: 10px;
+        }
+
+        .intern-row {
+            display: grid;
+            grid-template-columns: 1fr 140px auto;
+            align-items: center;
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.4);
+            margin-bottom: 8px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.2s ease;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .intern-row:hover {
+            background: rgba(255, 255, 255, 0.6);
+            transform: scale(1.005);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+        }
+
+        .intern-name {
+            font-weight: 500;
+            font-size: 15px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            padding-right: 10px;
+        }
+
+        /* Кастомный селект часов */
+        select {
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            background: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+            font-weight: 500;
+            outline: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            width: 120px;
+        }
+
+        select:focus {
+            border-color: var(--primary-color);
+        }
+
+        /* Кнопка удаления */
+        .btn-delete {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .btn-delete:hover {
+            background: rgba(255, 59, 48, 0.1);
+            color: var(--danger-color);
+        }
+
+        /* Пустое состояние */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-secondary);
+            font-size: 15px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-glow"></div>
+    <div class="bg-glow-2"></div>
+
+    <div class="container">
+        <header class="header-panel">
+            <div class="header-title-zone">
+                <h1>Учет часов практикантов</h1>
+                <button class="btn btn-secondary" id="exportBtn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                    Скачать отчет (CSV)
+                </button>
+            </div>
+            
+            <div class="controls-zone">
+                <div class="date-picker-wrapper">
+                    <label for="dateInput">Дата отчета:</label>
+                    <input type="date" id="dateInput">
+                </div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <section class="sidebar">
+                <h2>Стажеры</h2>
+                <form class="add-intern-form" id="addInternForm" onsubmit="event.preventDefault();">
+                    <input type="text" id="internNameInput" placeholder="Имя нового стажера" required autocomplete="off">
+                    <button type="submit" class="btn btn-primary" id="addInternBtn">+</button>
+                </form>
+            </section>
+
+            <section class="hours-panel">
+                <div class="table-header">
+                    <div>ФИО Стажера</div>
+                    <div>Часы</div>
+                    <div>Действие</div>
+                </div>
+                <div id="internsListContainer">
+                    </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // --- Константы и Инициализация состояния ---
+        const STORAGE_KEY = 'practiceHours';
+        
+        let state = {
+            interns: [],
+            logs: {}
+        };
+
+        // Локальный кэш строки localStorage для выявления изменений из других вкладок
+        let lastStorageRawString = '';
+
+        // --- Элементы DOM ---
+        const dateInput = document.getElementById('dateInput');
+        const internsListContainer = document.getElementById('internsListContainer');
+        const addInternForm = document.getElementById('addInternForm');
+        const internNameInput = document.getElementById('internNameInput');
+        const exportBtn = document.getElementById('exportBtn');
+
+        // Установка текущей даты по умолчанию (в часовом поясе пользователя)
+        const today = new Date().toISOString().split('T')[0];
+        dateInput.value = today;
+
+        // --- Функции логики данных ---
+
+        // Загрузка данных из localStorage
+        function loadData() {
+            const rawData = localStorage.getItem(STORAGE_KEY);
+            lastStorageRawString = rawData; // Сохраняем слепок для таймера синхронизации
+
+            if (rawData) {
+                try {
+                    state = JSON.parse(rawData);
+                    // На всякий случай проверяем валидность структуры
+                    if (!state.interns) state.interns = [];
+                    if (!state.logs) state.logs = {};
+                } catch (e) {
+                    console.error("Ошибка парсинга данных из localStorage, создаем чистую структуру.", e);
+                    initEmptyState();
+                }
+            } else {
+                initEmptyState();
+            }
+        }
+
+        function initEmptyState() {
+            state = { interns: [], logs: {} };
+            saveData();
+        }
+
+        // Сохранение данных
+        function saveData() {
+            const stringified = JSON.stringify(state);
+            localStorage.setItem(STORAGE_KEY, stringified);
+            lastStorageRawString = stringified; // Обновляем локальный слепок, чтобы не триггерить автообновление на этой же вкладке
+        }
+
+        // --- Интерфейс и Рендеринг ---
+
+        function render() {
+            const selectedDate = dateInput.value;
+            internsListContainer.innerHTML = '';
+
+            if (state.interns.length === 0) {
+                internsListContainer.innerHTML = `
+                    <div class="empty-state">
+                        Список стажеров пуст. Добавьте стажеров в левой панели.
+                    </div>
+                `;
+                return;
+            }
+
+            // Получаем или создаем объект логов на выбранный день
+            const dayLogs = state.logs[selectedDate] || {};
+
+            state.interns.forEach(internName => {
+                const currentHours = dayLogs[internName] !== undefined ? dayLogs[internName] : 0;
+
+                const row = document.createElement('div');
+                row.className = 'intern-row';
+
+                // Имя
+                const nameDiv = document.createElement('div');
+                nameDiv.className = 'intern-name';
+                nameDiv.textContent = internName;
+                nameDiv.title = internName;
+
+                // Выпадающий список часов
+                const selectDiv = document.createElement('div');
+                const select = document.createElement('select');
+                for (let i = 0; i <= 10; i++) {
+                    const option = document.createElement('option');
+                    option.value = i;
+                    option.textContent = i;
+                    if (i === currentHours) option.selected = true;
+                    select.appendChild(option);
+                }
+                
+                // Слушатель изменения часов
+                select.addEventListener('change', (e) => {
+                    updateHours(selectedDate, internName, parseInt(e.target.value, 10));
+                });
+                selectDiv.appendChild(select);
+
+                // Кнопка удаления стажера
+                const deleteDiv = document.createElement('div');
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'btn-delete';
+                deleteBtn.innerHTML = `
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                `;
+                deleteBtn.title = `Удалить стажера ${internName}`;
+                deleteBtn.addEventListener('click', () => {
+                    if (confirm(`Вы уверены, что хотите удалить стажера "${internName}"? Данные о его часах сохранятся в истории, но он исчезнет из текущего списка.`)) {
+                        deleteIntern(internName);
+                    }
+                });
+                deleteDiv.appendChild(deleteBtn);
+
+                row.appendChild(nameDiv);
+                row.appendChild(selectDiv);
+                row.appendChild(deleteDiv);
+
+                internsListContainer.appendChild(row);
+            });
+        }
+
+        // --- Управление событиями системы ---
+
+        function updateHours(date, name, hours) {
+            if (!state.logs[date]) {
+                state.logs[date] = {};
+            }
+            state.logs[date][name] = hours;
+            saveData();
+        }
+
+        function addIntern() {
+            const name = internNameInput.value.trim();
+            if (!name) return;
+
+            if (state.interns.includes(name)) {
+                alert('Стажер с таким именем уже существует!');
+                return;
+            }
+
+            state.interns.push(name);
+            internNameInput.value = '';
+            saveData();
+            render();
+        }
+
+        function deleteIntern(name) {
+            state.interns = state.interns.filter(i => i !== name);
+            saveData();
+            render();
+        }
+
+        // Экспорт в CSV файл
+        function exportToCSV() {
+            // Собираем все уникальные даты для построения структурированного отчета
+            const allDates = Object.keys(state.logs).sort();
+            
+            if (allDates.length === 0) {
+                alert('Нет данных для выгрузки отчета.');
+                return;
+            }
+
+            // Формируем CSV. Спецификация BOM для корректного открытия кириллицы в Excel
+            let csvContent = "\uFEFF"; 
+            
+            // Заголовки столбцов: Дата, Имя стажера, Отработано часов
+            csvContent += "Дата;Стажер;Отработано часов\n";
+
+            allDates.forEach(date => {
+                const dayLogs = state.logs[date];
+                for (const [internName, hours] of Object.entries(dayLogs)) {
+                    if (hours > 0) { // Экспортируем только ненулевые часы для чистоты отчета
+                        // Экранируем кавычки на всякий случай
+                        const safeName = internName.replace(/"/g, '""');
+                        csvContent += `${date};"${safeName}";${hours}\n`;
+                    }
+                }
+            });
+
+            // Создание скачиваемого файла
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            link.setAttribute("download", `Отчет_практика_на_${dateInput.value}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // --- Реалтайм Синхронизация (setInterval) ---
+        function startSyncTimer() {
+            setInterval(() => {
+                const currentRawString = localStorage.getItem(STORAGE_KEY);
+                
+                // Если строка в localStorage изменилась по сравнению с нашей локальной копией
+                if (currentRawString !== lastStorageRawString) {
+                    loadData();
+                    render();
+                }
+            }, 2500); // Проверка каждые 2.5 секунды согласно ТЗ
+        }
+
+        // Альтернативный нативный обработчик событий хранилища (работает мгновенно для вкладок)
+        window.addEventListener('storage', (e) => {
+            if (e.key === STORAGE_KEY) {
+                loadData();
+                render();
+            }
+        });
+
+        // --- Привязка триггеров к UI ---
+        addInternForm.addEventListener('submit', addIntern);
+        dateInput.addEventListener('change', render);
+        exportBtn.addEventListener('click', exportToCSV);
+
+        // Старт приложения
+        loadData();
+        render();
+        startSyncTimer();
+
+    </script>
+</body>
+</html>
