@@ -7,12 +7,17 @@
     <style>
         :root {
             --primary-color: #0071e3;
+            --primary-hover: #0077ed;
             --danger-color: #ff3b30;
-            --bg-gradient: linear-gradient(135deg, #c3cfe2 0%, #c3cfe2 100%);
-            --glass-bg: rgba(255, 255, 255, 0.4);
-            --glass-border: rgba(255, 255, 255, 0.4);
+            --danger-bg: rgba(255, 59, 48, 0.1);
+            --glass-bg: rgba(255, 255, 255, 0.45);
+            --glass-border: rgba(255, 255, 255, 0.6);
             --text-color: #1d1d1f;
-            --text-secondary: #86868b;
+            --text-secondary: #6e6e73;
+            --radius-xl: 24px;
+            --radius-lg: 16px;
+            --radius-md: 12px;
+            --shadow-smooth: 0 8px 32px 0 rgba(31, 38, 135, 0.08);
         }
 
         * {
@@ -24,60 +29,74 @@
         }
 
         body {
-            background: linear-gradient(135deg, #e2e8f0 0%, #e2e8f0 40%, #cbd5e1 100%);
+            background: #f5f5f7;
             background-attachment: fixed;
             color: var(--text-color);
             min-height: 100vh;
-            padding: 20px;
+            padding: 40px 20px;
             display: flex;
             justify-content: center;
             align-items: flex-start;
+            overflow-x: hidden;
+            position: relative;
         }
 
-        /* Задний фон с размытыми фигурами для усиления эффекта стекла */
+        /* Анимированный интерактивный фон */
         .bg-glow {
             position: fixed;
-            width: 400px;
-            height: 400px;
-            background: radial-gradient(circle, rgba(14,165,233,0.15) 0%, rgba(255,255,255,0) 70%);
-            top: 10%;
-            left: 10%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(14,165,233,0.2) 0%, rgba(255,255,255,0) 70%);
+            top: -10%;
+            left: -10%;
             z-index: -1;
-            filter: blur(40px);
+            filter: blur(60px);
+            animation: floatGlow 12s infinite alternate ease-in-out;
         }
         .bg-glow-2 {
             position: fixed;
-            width: 500px;
-            height: 500px;
-            background: radial-gradient(circle, rgba(236,72,153,0.1) 0%, rgba(255,255,255,0) 70%);
-            bottom: 10%;
-            right: 10%;
+            width: 700px;
+            height: 700px;
+            background: radial-gradient(circle, rgba(236,72,153,0.15) 0%, rgba(255,255,255,0) 70%);
+            bottom: -10%;
+            right: -10%;
             z-index: -1;
-            filter: blur(50px);
+            filter: blur(70px);
+            animation: floatGlow 18s infinite alternate-reverse ease-in-out;
+        }
+
+        @keyframes floatGlow {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(80px, 50px) scale(1.15); }
         }
 
         .container {
             width: 100%;
-            max-width: 1000px;
+            max-width: 1050px;
             background: var(--glass-bg);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
             border: 1px solid var(--glass-border);
-            border-radius: 24px;
-            padding: 30px;
-            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.06);
+            border-radius: var(--radius-xl);
+            padding: 35px;
+            box-shadow: var(--shadow-smooth);
             display: grid;
             grid-template-columns: 1fr;
-            gap: 25px;
+            gap: 30px;
+            animation: appAppear 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
-        /* Верхняя панель управления */
+        @keyframes appAppear {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         .header-panel {
             display: flex;
             flex-direction: column;
             gap: 20px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            padding-bottom: 25px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.06);
         }
 
         .header-title-zone {
@@ -85,226 +104,231 @@
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 15px;
+            gap: 20px;
         }
 
         h1 {
-            font-size: 24px;
-            font-weight: 600;
+            font-size: 28px;
+            font-weight: 700;
             letter-spacing: -0.5px;
+            background: linear-gradient(180deg, #1d1d1f 0%, #434344 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         .controls-zone {
             display: flex;
             align-items: center;
             gap: 15px;
-            flex-wrap: wrap;
-            width: 100%;
-            justify-content: space-between;
         }
 
         .date-picker-wrapper {
             display: flex;
             align-items: center;
-            gap: 10px;
-            background: rgba(255, 255, 255, 0.5);
-            padding: 6px 12px;
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.5);
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.6);
+            padding: 8px 16px;
+            border-radius: var(--radius-md);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+            transition: all 0.3s ease;
+        }
+
+        .date-picker-wrapper:focus-within {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.12);
         }
 
         .date-picker-wrapper label {
             font-size: 14px;
             color: var(--text-secondary);
-            font-weight: 500;
+            font-weight: 600;
         }
 
         input[type="date"] {
             border: none;
             background: transparent;
             font-size: 15px;
-            font-weight: 500;
+            font-weight: 600;
             color: var(--text-color);
             outline: none;
             cursor: pointer;
         }
 
-        /* Главная рабочая зона: Сетка */
         .main-content {
             display: grid;
-            grid-template-columns: 300px 1fr;
-            gap: 25px;
+            grid-template-columns: 310px 1fr;
+            gap: 30px;
         }
 
-        @media (max-width: 768px) {
-            .main-content {
-                grid-template-columns: 1fr;
-            }
-            .controls-zone {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            .date-picker-wrapper {
-                justify-content: space-between;
-            }
-        }
-
-        /* Сайдбар управления пользователями */
         .sidebar {
-            background: rgba(255, 255, 255, 0.3);
-            padding: 20px;
-            border-radius: 18px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.4);
+            padding: 24px;
+            border-radius: var(--radius-lg);
+            border: 1px solid rgba(255, 255, 255, 0.4);
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 18px;
             height: fit-content;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.01);
         }
 
         .sidebar h2 {
-            font-size: 16px;
-            font-weight: 600;
+            font-size: 13px;
+            font-weight: 700;
             color: var(--text-secondary);
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 1px;
         }
 
         .add-intern-form {
             display: flex;
-            gap: 8px;
+            gap: 10px;
         }
 
         input[type="text"] {
             flex: 1;
-            padding: 10px 14px;
-            border-radius: 10px;
-            border: 1px solid rgba(0, 0, 0, 0.1);
-            background: rgba(255, 255, 255, 0.6);
+            padding: 12px 16px;
+            border-radius: var(--radius-md);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            background: rgba(255, 255, 255, 0.7);
             font-size: 14px;
+            font-weight: 500;
             outline: none;
-            transition: all 0.2s ease;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         input[type="text"]:focus {
             border-color: var(--primary-color);
-            background: rgba(255, 255, 255, 0.9);
-            box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.15);
+            background: #fff;
+            box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.12);
         }
 
-        /* Кнопки */
         .btn {
-            padding: 10px 16px;
-            border-radius: 10px;
+            padding: 12px 20px;
+            border-radius: var(--radius-md);
             border: none;
             font-size: 14px;
-            font-weight: 500;
+            font-weight: 600;
             cursor: pointer;
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 6px;
+            gap: 8px;
         }
 
         .btn-primary {
             background: var(--primary-color);
             color: white;
+            box-shadow: 0 2px 8px rgba(0, 113, 227, 0.2);
         }
 
         .btn-primary:hover {
-            background: #0077ed;
+            background: var(--primary-hover);
             transform: translateY(-1px);
-        }
-
-        .btn-primary:active {
-            transform: translateY(0);
+            box-shadow: 0 4px 12px rgba(0, 113, 227, 0.3);
         }
 
         .btn-secondary {
-            background: rgba(255, 255, 255, 0.6);
+            background: rgba(255, 255, 255, 0.7);
             color: var(--text-color);
-            border: 1px solid rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(0, 0, 0, 0.06);
         }
 
         .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.8);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            background: #fff;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
         }
 
-        /* Список / Таблица учета часов */
+        #addInternBtn {
+            padding: 12px 18px;
+            font-size: 18px;
+        }
+
         .hours-panel {
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 18px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 20px;
-            overflow: hidden;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: var(--radius-lg);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            padding: 24px;
         }
 
         .table-header {
             display: grid;
             grid-template-columns: 1fr 140px auto;
-            padding: 10px 15px;
+            padding: 0 16px 12px 16px;
             font-weight: 600;
             color: var(--text-secondary);
-            font-size: 14px;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
             border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-            margin-bottom: 10px;
+            margin-bottom: 12px;
         }
 
         .intern-row {
             display: grid;
             grid-template-columns: 1fr 140px auto;
             align-items: center;
-            padding: 12px 15px;
-            background: rgba(255, 255, 255, 0.4);
-            margin-bottom: 8px;
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            transition: all 0.2s ease;
-            animation: fadeIn 0.3s ease;
+            padding: 14px 16px;
+            background: rgba(255, 255, 255, 0.6);
+            margin-bottom: 10px;
+            border-radius: var(--radius-md);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.01);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: rowAppear 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        @keyframes rowAppear {
+            from { opacity: 0; transform: translateY(15px) scale(0.97); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
         }
 
         .intern-row:hover {
-            background: rgba(255, 255, 255, 0.6);
-            transform: scale(1.005);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+            background: #fff;
+            transform: translateY(-2px) scale(1.005);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.04);
+            border-color: rgba(0, 113, 227, 0.15);
         }
 
         .intern-name {
-            font-weight: 500;
-            font-size: 15px;
+            font-weight: 600;
+            font-size: 16px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            padding-right: 10px;
+            padding-right: 15px;
+            color: #1d1d1f;
         }
 
-        /* Кастомный селект часов */
         select {
-            padding: 8px 12px;
-            border-radius: 8px;
-            border: 1px solid rgba(0, 0, 0, 0.1);
-            background: rgba(255, 255, 255, 0.8);
+            padding: 10px 14px;
+            border-radius: 10px;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            background: rgba(255, 255, 255, 0.9);
             font-size: 14px;
-            font-weight: 500;
+            font-weight: 600;
             outline: none;
             cursor: pointer;
             transition: all 0.2s ease;
             width: 120px;
+            color: var(--text-color);
         }
 
         select:focus {
             border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.1);
         }
 
-        /* Кнопка удаления */
         .btn-delete {
             background: transparent;
             border: none;
-            color: var(--text-secondary);
+            color: #a1a1a6;
             cursor: pointer;
-            padding: 8px;
-            border-radius: 8px;
+            padding: 10px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -312,30 +336,31 @@
         }
 
         .btn-delete:hover {
-            background: rgba(255, 59, 48, 0.1);
+            background: var(--danger-bg);
             color: var(--danger-color);
+            transform: scale(1.05);
         }
 
-        /* Пустое состояние */
         .empty-state {
             text-align: center;
-            padding: 40px 20px;
+            padding: 50px 20px;
             color: var(--text-secondary);
             font-size: 15px;
+            font-weight: 500;
         }
 
-        /* Панель недельного счетчика часов */
         .weekly-counter-panel {
             margin-top: 10px;
-            padding: 20px;
-            background: rgba(255, 255, 255, 0.3);
-            border-radius: 18px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 22px;
+            background: rgba(255, 255, 255, 0.55);
+            border-radius: var(--radius-lg);
+            border: 1px solid rgba(255, 255, 255, 0.6);
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
             gap: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.02);
         }
 
         .weekly-counter-info {
@@ -345,39 +370,55 @@
         }
 
         .weekly-counter-title {
-            font-size: 15px;
-            font-weight: 600;
+            font-size: 16px;
+            font-weight: 700;
             color: var(--text-color);
         }
 
         .weekly-counter-dates {
             font-size: 13px;
+            font-weight: 600;
             color: var(--text-secondary);
         }
 
         .weekly-counter-badge {
             display: flex;
             align-items: center;
-            gap: 6px;
-            background: rgba(0, 113, 227, 0.1);
+            gap: 8px;
+            background: rgba(0, 113, 227, 0.08);
             color: var(--primary-color);
-            padding: 8px 16px;
-            border-radius: 30px;
-            font-size: 18px;
-            font-weight: 700;
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-size: 20px;
+            font-weight: 800;
+            border: 1px solid rgba(0, 113, 227, 0.15);
         }
 
         .weekly-counter-badge-label {
             font-size: 12px;
-            font-weight: 600;
+            font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            color: var(--primary-color);
             opacity: 0.8;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(5px); }
-            to { opacity: 1; transform: translateY(0); }
+        @media (max-width: 850px) {
+            body { padding: 15px 10px; }
+            .container { padding: 20px; gap: 20px; border-radius: var(--radius-lg); }
+            h1 { font-size: 22px; }
+            .main-content { grid-template-columns: 1fr; gap: 20px; }
+            .header-title-zone { flex-direction: column; align-items: stretch; gap: 12px; }
+            .btn-secondary { width: 100%; }
+            .controls-zone { width: 100%; }
+            .date-picker-wrapper { width: 100%; justify-content: space-between; }
+            .table-header { display: none; }
+            .intern-row { grid-template-columns: 1fr auto; gap: 12px; padding: 16px; position: relative; }
+            .intern-name { grid-column: 1 / -1; font-size: 16px; padding-bottom: 8px; border-bottom: 1px solid rgba(0,0,0,0.04); margin-bottom: 4px; }
+            select { width: 140px; padding: 12px; }
+            .btn-delete { background: var(--danger-bg); color: var(--danger-color); padding: 12px 16px; }
+            .weekly-counter-panel { flex-direction: column; text-align: center; padding: 20px; }
+            .weekly-counter-badge { width: 100%; justify-content: center; }
         }
     </style>
 </head>
@@ -435,18 +476,24 @@
         </footer>
     </div>
 
+    <!-- Подключаем Firebase обратно -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
     <script>
-        // --- Константы и Инициализация состояния ---
-        const STORAGE_KEY = 'practiceHours';
+        // Твоя рабочая ссылка на базу данных
+        const firebaseConfig = {
+            databaseURL: "https://my-hours-db-default-rtdb.firebaseio.com/"
+        };
         
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
         let state = {
             interns: [],
             logs: {}
         };
 
-        let lastStorageRawString = '';
-
-        // --- Элементы DOM ---
         const dateInput = document.getElementById('dateInput');
         const internsListContainer = document.getElementById('internsListContainer');
         const addInternForm = document.getElementById('addInternForm');
@@ -456,44 +503,30 @@
         const today = new Date().toISOString().split('T')[0];
         dateInput.value = today;
 
-        // --- Функции логики данных ---
-
-        function loadData() {
-            const rawData = localStorage.getItem(STORAGE_KEY);
-            lastStorageRawString = rawData;
-
-            if (rawData) {
-                try {
-                    state = JSON.parse(rawData);
+        // Синхронизация с облаком в реальном времени
+        function initDataSync() {
+            db.ref('practiceHoursCloud').on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    state = data;
                     if (!state.interns) state.interns = [];
                     if (!state.logs) state.logs = {};
-                } catch (e) {
-                    console.error("Ошибка парсинга данных", e);
-                    initEmptyState();
+                } else {
+                    state = { interns: [], logs: {} };
                 }
-            } else {
-                initEmptyState();
-            }
-        }
-
-        function initEmptyState() {
-            state = { interns: [], logs: {} };
-            saveData();
+                render();
+            });
         }
 
         function saveData() {
-            const stringified = JSON.stringify(state);
-            localStorage.setItem(STORAGE_KEY, stringified);
-            lastStorageRawString = stringified;
+            db.ref('practiceHoursCloud').set(state);
         }
-
-        // --- Интерфейс и Рендеринг ---
 
         function render() {
             const selectedDate = dateInput.value;
             internsListContainer.innerHTML = '';
 
-            if (state.interns.length === 0) {
+            if (!state.interns || state.interns.length === 0) {
                 internsListContainer.innerHTML = `
                     <div class="empty-state">
                         Список стажеров пуст. Добавьте стажеров в левой панели.
@@ -514,7 +547,6 @@
                 const nameDiv = document.createElement('div');
                 nameDiv.className = 'intern-name';
                 nameDiv.textContent = internName;
-                nameDiv.title = internName;
 
                 const selectDiv = document.createElement('div');
                 const select = document.createElement('select');
@@ -537,9 +569,8 @@
                 deleteBtn.innerHTML = `
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                 `;
-                deleteBtn.title = `Удалить стажера ${internName}`;
                 deleteBtn.addEventListener('click', () => {
-                    if (confirm(`Вы уверены, что хотите удалить стажера "${internName}"? Данные о его часах сохранятся в истории, но он исчезнет из текущего списка.`)) {
+                    if (confirm(`Вы уверены, что хотите удалить стажера "${internName}"?`)) {
                         deleteIntern(internName);
                     }
                 });
@@ -555,7 +586,7 @@
             updateWeeklyTotal(selectedDate);
         }
 
-        // Подсчет часов только для АКТИВНЫХ в таблице стажеров
+        // Фильтрованный подсчет: считаем часы ТОЛЬКО тех, кто есть в списке стажеров на экране
         function updateWeeklyTotal(selectedDateStr) {
             if (!selectedDateStr) return;
             
@@ -577,7 +608,6 @@
             
             let totalWeeklyHours = 0;
             
-            // Если стажеров вообще нет на экране, то и считать некого
             if (state.interns && state.interns.length > 0) {
                 for (let i = 0; i < 7; i++) {
                     const loopDate = new Date(monday);
@@ -590,7 +620,7 @@
                     
                     if (state.logs && state.logs[dateKey]) {
                         for (const internName in state.logs[dateKey]) {
-                            // Фильтр: суммируем только если этот человек прямо сейчас есть в списке
+                            // Проверка: человек должен быть активен в текущем списке
                             if (state.interns.includes(internName)) {
                                 totalWeeklyHours += state.logs[dateKey][internName] || 0;
                             }
@@ -602,15 +632,12 @@
             document.getElementById('weeklyTotalValue').textContent = totalWeeklyHours;
         }
 
-        // --- Управление событиями системы ---
-
         function updateHours(date, name, hours) {
             if (!state.logs[date]) {
                 state.logs[date] = {};
             }
             state.logs[date][name] = hours;
             saveData();
-            updateWeeklyTotal(dateInput.value); // Мгновенный пересчет при клике мышкой
         }
 
         function addIntern() {
@@ -625,29 +652,26 @@
             state.interns.push(name);
             internNameInput.value = '';
             saveData();
-            render();
         }
 
         function deleteIntern(name) {
             state.interns = state.interns.filter(i => i !== name);
             saveData();
-            render();
         }
 
         function exportToCSV() {
-            const allDates = Object.keys(state.logs).sort();
-            if (allDates.length === 0) {
+            if (!state.logs || Object.keys(state.logs).length === 0) {
                 alert('Нет данных для выгрузки отчета.');
                 return;
             }
-
+            const allDates = Object.keys(state.logs).sort();
             let csvContent = "\uFEFF"; 
             csvContent += "Дата;Стажер;Отработано часов\n";
 
             allDates.forEach(date => {
                 const dayLogs = state.logs[date];
                 for (const [internName, hours] of Object.entries(dayLogs)) {
-                    if (hours > 0 && state.interns.includes(internName)) { 
+                    if (hours > 0 && state.interns.includes(internName)) {
                         const safeName = internName.replace(/"/g, '""');
                         csvContent += `${date};"${safeName}";${hours}\n`;
                     }
@@ -664,30 +688,11 @@
             document.body.removeChild(link);
         }
 
-        function startSyncTimer() {
-            setInterval(() => {
-                const currentRawString = localStorage.getItem(STORAGE_KEY);
-                if (currentRawString !== lastStorageRawString) {
-                    loadData();
-                    render();
-                }
-            }, 2500);
-        }
-
-        window.addEventListener('storage', (e) => {
-            if (e.key === STORAGE_KEY) {
-                loadData();
-                render();
-            }
-        });
-
         addInternForm.addEventListener('submit', addIntern);
         dateInput.addEventListener('change', render);
         exportBtn.addEventListener('click', exportToCSV);
 
-        loadData();
-        render();
-        startSyncTimer();
+        initDataSync();
     </script>
 </body>
 </html>
