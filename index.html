@@ -119,7 +119,9 @@
         .controls-zone {
             display: flex;
             align-items: center;
+            justify-content: space-between;
             gap: 15px;
+            flex-wrap: wrap;
         }
 
         .date-picker-wrapper {
@@ -153,6 +155,16 @@
             color: var(--text-color);
             outline: none;
             cursor: pointer;
+        }
+
+        .week-range-display {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            background: rgba(255, 255, 255, 0.5);
+            padding: 8px 16px;
+            border-radius: var(--radius-md);
+            border: 1px solid rgba(255, 255, 255, 0.5);
         }
 
         .main-content {
@@ -256,7 +268,7 @@
 
         .table-header {
             display: grid;
-            grid-template-columns: 1fr 140px auto;
+            grid-template-columns: 1fr 140px 150px auto;
             padding: 0 16px 12px 16px;
             font-weight: 600;
             color: var(--text-secondary);
@@ -265,11 +277,12 @@
             letter-spacing: 0.5px;
             border-bottom: 1px solid rgba(0, 0, 0, 0.05);
             margin-bottom: 12px;
+            align-items: center;
         }
 
         .intern-row {
             display: grid;
-            grid-template-columns: 1fr 140px auto;
+            grid-template-columns: 1fr 140px 150px auto;
             align-items: center;
             padding: 14px 16px;
             background: rgba(255, 255, 255, 0.6);
@@ -322,6 +335,35 @@
             box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.1);
         }
 
+        /* Персональный счетчик за неделю внутри строки */
+        .intern-week-total {
+            background: rgba(0, 113, 227, 0.08);
+            color: var(--primary-color);
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            border: 1px solid rgba(0, 113, 227, 0.12);
+            width: fit-content;
+            justify-self: center;
+        }
+
+        .intern-week-total small {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            opacity: 0.7;
+            display: none; /* скрыто на ПК для экономии места */
+        }
+
+        .delete-container {
+            justify-self: end;
+        }
+
         .btn-delete {
             background: transparent;
             border: none;
@@ -349,60 +391,6 @@
             font-weight: 500;
         }
 
-        .weekly-counter-panel {
-            margin-top: 10px;
-            padding: 22px;
-            background: rgba(255, 255, 255, 0.55);
-            border-radius: var(--radius-lg);
-            border: 1px solid rgba(255, 255, 255, 0.6);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 15px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.02);
-        }
-
-        .weekly-counter-info {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        .weekly-counter-title {
-            font-size: 16px;
-            font-weight: 700;
-            color: var(--text-color);
-        }
-
-        .weekly-counter-dates {
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text-secondary);
-        }
-
-        .weekly-counter-badge {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(0, 113, 227, 0.08);
-            color: var(--primary-color);
-            padding: 8px 20px;
-            border-radius: 50px;
-            font-size: 20px;
-            font-weight: 800;
-            border: 1px solid rgba(0, 113, 227, 0.15);
-        }
-
-        .weekly-counter-badge-label {
-            font-size: 12px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: var(--primary-color);
-            opacity: 0.8;
-        }
-
         @media (max-width: 850px) {
             body { padding: 15px 10px; }
             .container { padding: 20px; gap: 20px; border-radius: var(--radius-lg); }
@@ -410,15 +398,17 @@
             .main-content { grid-template-columns: 1fr; gap: 20px; }
             .header-title-zone { flex-direction: column; align-items: stretch; gap: 12px; }
             .btn-secondary { width: 100%; }
-            .controls-zone { width: 100%; }
+            .controls-zone { width: 100%; flex-direction: column; align-items: stretch; gap: 10px; }
             .date-picker-wrapper { width: 100%; justify-content: space-between; }
+            .week-range-display { text-align: center; width: 100%; }
             .table-header { display: none; }
-            .intern-row { grid-template-columns: 1fr auto; gap: 12px; padding: 16px; position: relative; }
+            .intern-row { grid-template-columns: 1fr 1fr auto; gap: 12px; padding: 16px; }
             .intern-name { grid-column: 1 / -1; font-size: 16px; padding-bottom: 8px; border-bottom: 1px solid rgba(0,0,0,0.04); margin-bottom: 4px; }
-            select { width: 140px; padding: 12px; }
+            select { width: 100%; padding: 12px; }
+            .intern-week-total { width: 100%; justify-self: stretch; padding: 10px; border-radius: 10px; }
+            .intern-week-total small { display: inline; margin-left: 4px; }
+            .delete-container { justify-self: end; }
             .btn-delete { background: var(--danger-bg); color: var(--danger-color); padding: 12px 16px; }
-            .weekly-counter-panel { flex-direction: column; text-align: center; padding: 20px; }
-            .weekly-counter-badge { width: 100%; justify-content: center; }
         }
     </style>
 </head>
@@ -442,6 +432,9 @@
                     <label for="dateInput">Дата отчета:</label>
                     <input type="date" id="dateInput">
                 </div>
+                <div class="week-range-display">
+                    Неделя: с <span id="weekStart">...</span> по <span id="weekEnd">...</span>
+                </div>
             </div>
         </header>
 
@@ -457,31 +450,19 @@
             <section class="hours-panel">
                 <div class="table-header">
                     <div>ФИО Стажера</div>
-                    <div>Часы</div>
-                    <div>Действие</div>
+                    <div>За сегодня</div>
+                    <div style="text-align: center;">Всего за неделю</div>
+                    <div style="text-align: right; padding-right: 10px;">Действие</div>
                 </div>
                 <div id="internsListContainer"></div>
             </section>
         </main>
-
-        <footer class="weekly-counter-panel">
-            <div class="weekly-counter-info">
-                <div class="weekly-counter-title">Итог за текущую неделю</div>
-                <div class="weekly-counter-dates">с <span id="weekStart">...</span> по <span id="weekEnd">...</span></div>
-            </div>
-            <div class="weekly-counter-badge">
-                <span id="weeklyTotalValue">0</span>
-                <span class="weekly-counter-badge-label">ч. всего</span>
-            </div>
-        </footer>
     </div>
 
-    <!-- Подключаем Firebase обратно -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <script>
-        // Твоя рабочая ссылка на базу данных
         const firebaseConfig = {
             databaseURL: "https://my-hours-db-default-rtdb.firebaseio.com/"
         };
@@ -503,7 +484,6 @@
         const today = new Date().toISOString().split('T')[0];
         dateInput.value = today;
 
-        // Синхронизация с облаком в реальном времени
         function initDataSync() {
             db.ref('practiceHoursCloud').on('value', (snapshot) => {
                 const data = snapshot.val();
@@ -522,9 +502,61 @@
             db.ref('practiceHoursCloud').set(state);
         }
 
+        // Функция расчета недельных часов ИМЕННО для конкретного стажера
+        function getInternWeeklyTotal(internName, selectedDateStr) {
+            if (!selectedDateStr) return 0;
+            
+            const parts = selectedDateStr.split('-');
+            const curr = new Date(parts[0], parts[1] - 1, parts[2]);
+            
+            const currentDay = curr.getDay(); 
+            const distanceToMonday = currentDay === 0 ? -6 : 1 - currentDay;
+            
+            const monday = new Date(curr);
+            monday.setDate(curr.getDate() + distanceToMonday);
+            
+            let totalWeeklyHours = 0;
+            
+            for (let i = 0; i < 7; i++) {
+                const loopDate = new Date(monday);
+                loopDate.setDate(monday.getDate() + i);
+                
+                const y = loopDate.getFullYear();
+                const m = String(loopDate.getMonth() + 1).padStart(2, '0');
+                const d = String(loopDate.getDate()).padStart(2, '0');
+                const dateKey = `${y}-${m}-${d}`;
+                
+                if (state.logs && state.logs[dateKey] && state.logs[dateKey][internName]) {
+                    totalWeeklyHours += state.logs[dateKey][internName] || 0;
+                }
+            }
+            return totalWeeklyHours;
+        }
+
+        // Обновление дат текущей недели в верхней панели
+        function updateWeekRangeDisplay(selectedDateStr) {
+            if (!selectedDateStr) return;
+            const parts = selectedDateStr.split('-');
+            const curr = new Date(parts[0], parts[1] - 1, parts[2]);
+            const currentDay = curr.getDay(); 
+            const distanceToMonday = currentDay === 0 ? -6 : 1 - currentDay;
+            
+            const monday = new Date(curr);
+            monday.setDate(curr.getDate() + distanceToMonday);
+            
+            const sunday = new Date(monday);
+            sunday.setDate(monday.getDate() + 6);
+            
+            const displayOptions = { day: 'numeric', month: 'long' };
+            document.getElementById('weekStart').textContent = monday.toLocaleDateString('ru-RU', displayOptions);
+            document.getElementById('weekEnd').textContent = sunday.toLocaleDateString('ru-RU', displayOptions);
+        }
+
         function render() {
             const selectedDate = dateInput.value;
             internsListContainer.innerHTML = '';
+
+            updateWeekRangeDisplay(selectedDate);
 
             if (!state.interns || state.interns.length === 0) {
                 internsListContainer.innerHTML = `
@@ -532,7 +564,6 @@
                         Список стажеров пуст. Добавьте стажеров в левой панели.
                     </div>
                 `;
-                updateWeeklyTotal(selectedDate);
                 return;
             }
 
@@ -540,14 +571,19 @@
 
             state.interns.forEach(internName => {
                 const currentHours = dayLogs[internName] !== undefined ? dayLogs[internName] : 0;
+                
+                // Считаем часы конкретно для этой строки
+                const weeklyTotal = getInternWeeklyTotal(internName, selectedDate);
 
                 const row = document.createElement('div');
                 row.className = 'intern-row';
 
+                // 1. Имя
                 const nameDiv = document.createElement('div');
                 nameDiv.className = 'intern-name';
                 nameDiv.textContent = internName;
 
+                // 2. Селект часов
                 const selectDiv = document.createElement('div');
                 const select = document.createElement('select');
                 for (let i = 0; i <= 10; i++) {
@@ -557,13 +593,19 @@
                     if (i === currentHours) option.selected = true;
                     select.appendChild(option);
                 }
-                
                 select.addEventListener('change', (e) => {
                     updateHours(selectedDate, internName, parseInt(e.target.value, 10));
                 });
                 selectDiv.appendChild(select);
 
+                // 3. Личный счетчик за неделю
+                const totalDiv = document.createElement('div');
+                totalDiv.className = 'intern-week-total';
+                totalDiv.innerHTML = `<span>${weeklyTotal} ч.</span><small>за неделю</small>`;
+
+                // 4. Кнопка удаления
                 const deleteDiv = document.createElement('div');
+                deleteDiv.className = 'delete-container';
                 const deleteBtn = document.createElement('button');
                 deleteBtn.className = 'btn-delete';
                 deleteBtn.innerHTML = `
@@ -578,58 +620,11 @@
 
                 row.appendChild(nameDiv);
                 row.appendChild(selectDiv);
+                row.appendChild(totalDiv);
                 row.appendChild(deleteDiv);
 
                 internsListContainer.appendChild(row);
             });
-
-            updateWeeklyTotal(selectedDate);
-        }
-
-        // Фильтрованный подсчет: считаем часы ТОЛЬКО тех, кто есть в списке стажеров на экране
-        function updateWeeklyTotal(selectedDateStr) {
-            if (!selectedDateStr) return;
-            
-            const parts = selectedDateStr.split('-');
-            const curr = new Date(parts[0], parts[1] - 1, parts[2]);
-            
-            const currentDay = curr.getDay(); 
-            const distanceToMonday = currentDay === 0 ? -6 : 1 - currentDay;
-            
-            const monday = new Date(curr);
-            monday.setDate(curr.getDate() + distanceToMonday);
-            
-            const sunday = new Date(monday);
-            sunday.setDate(monday.getDate() + 6);
-            
-            const displayOptions = { day: 'numeric', month: 'long' };
-            document.getElementById('weekStart').textContent = monday.toLocaleDateString('ru-RU', displayOptions);
-            document.getElementById('weekEnd').textContent = sunday.toLocaleDateString('ru-RU', displayOptions);
-            
-            let totalWeeklyHours = 0;
-            
-            if (state.interns && state.interns.length > 0) {
-                for (let i = 0; i < 7; i++) {
-                    const loopDate = new Date(monday);
-                    loopDate.setDate(monday.getDate() + i);
-                    
-                    const y = loopDate.getFullYear();
-                    const m = String(loopDate.getMonth() + 1).padStart(2, '0');
-                    const d = String(loopDate.getDate()).padStart(2, '0');
-                    const dateKey = `${y}-${m}-${d}`;
-                    
-                    if (state.logs && state.logs[dateKey]) {
-                        for (const internName in state.logs[dateKey]) {
-                            // Проверка: человек должен быть активен в текущем списке
-                            if (state.interns.includes(internName)) {
-                                totalWeeklyHours += state.logs[dateKey][internName] || 0;
-                            }
-                        }
-                    }
-                }
-            }
-            
-            document.getElementById('weeklyTotalValue').textContent = totalWeeklyHours;
         }
 
         function updateHours(date, name, hours) {
