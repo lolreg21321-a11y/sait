@@ -360,6 +360,61 @@
             font-weight: 500;
         }
 
+        /* Панель недельного счетчика часов */
+        .weekly-counter-panel {
+            margin-top: 10px;
+            padding: 22px;
+            background: rgba(255, 255, 255, 0.55);
+            border-radius: var(--radius-lg);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+        }
+
+        .weekly-counter-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .weekly-counter-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-color);
+        }
+
+        .weekly-counter-dates {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .weekly-counter-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 113, 227, 0.08);
+            color: var(--primary-color);
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-size: 20px;
+            font-weight: 800;
+            border: 1px solid rgba(0, 113, 227, 0.15);
+        }
+
+        .weekly-counter-badge-label {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--primary-color);
+            opacity: 0.8;
+        }
+
         /* Адаптив для мобильных устройств */
         @media (max-width: 850px) {
             body {
@@ -418,6 +473,15 @@
                 color: var(--danger-color);
                 padding: 12px 16px;
             }
+            .weekly-counter-panel {
+                flex-direction: column;
+                text-align: center;
+                padding: 20px;
+            }
+            .weekly-counter-badge {
+                width: 100%;
+                justify-content: center;
+            }
         }
     </style>
 </head>
@@ -462,6 +526,18 @@
                 <div id="internsListContainer"></div>
             </section>
         </main>
+
+        <!-- Новый виджет счетчика за неделю -->
+        <footer class="weekly-counter-panel">
+            <div class="weekly-counter-info">
+                <div class="weekly-counter-title">Итог за текущую неделю</div>
+                <div class="weekly-counter-dates">с <span id="weekStart">...</span> по <span id="weekEnd">...</span></div>
+            </div>
+            <div class="weekly-counter-badge">
+                <span id="weeklyTotalValue">0</span>
+                <span class="weekly-counter-badge-label">ч. всего</span>
+            </div>
+        </footer>
     </div>
 
     <!-- Облако Firebase -->
@@ -545,6 +621,7 @@
                         Список стажеров пуст. Добавьте стажеров в левой панели.
                     </div>
                 `;
+                updateWeeklyTotal(selectedDate);
                 return;
             }
 
@@ -596,6 +673,56 @@
 
                 internsListContainer.appendChild(row);
             });
+
+            // Запускаем пересчет недельных часов при каждом обновлении экрана
+            updateWeeklyTotal(selectedDate);
+        }
+
+        // Функция высчитывания и вывода суммы часов за календарную неделю
+        function updateWeeklyTotal(selectedDateStr) {
+            if (!selectedDateStr) return;
+            
+            // Разбираем дату без сдвигов часовых поясов
+            const parts = selectedDateStr.split('-');
+            const curr = new Date(parts[0], parts[1] - 1, parts[2]);
+            
+            // Находим понедельник текущей недели
+            const currentDay = curr.getDay(); 
+            const distanceToMonday = currentDay === 0 ? -6 : 1 - currentDay;
+            
+            const monday = new Date(curr);
+            monday.setDate(curr.getDate() + distanceToMonday);
+            
+            // Находим воскресенье текущей недели
+            const sunday = new Date(monday);
+            sunday.setDate(monday.getDate() + 6);
+            
+            // Выводим красивые текстовые даты диапазона
+            const displayOptions = { day: 'numeric', month: 'long' };
+            document.getElementById('weekStart').textContent = monday.toLocaleDateString('ru-RU', displayOptions);
+            document.getElementById('weekEnd').textContent = sunday.toLocaleDateString('ru-RU', displayOptions);
+            
+            let totalWeeklyHours = 0;
+            
+            // Собираем ключи для всех 7 дней этой недели и суммируем часы
+            for (let i = 0; i < 7; i++) {
+                const loopDate = new Date(monday);
+                loopDate.setDate(monday.getDate() + i);
+                
+                const y = loopDate.getFullYear();
+                const m = String(loopDate.getMonth() + 1).padStart(2, '0');
+                const d = String(loopDate.getDate()).padStart(2, '0');
+                const dateKey = `${y}-${m}-${d}`;
+                
+                if (state.logs && state.logs[dateKey]) {
+                    for (const internName in state.logs[dateKey]) {
+                        totalWeeklyHours += state.logs[dateKey][internName] || 0;
+                    }
+                }
+            }
+            
+            // Выводим результат в бадж
+            document.getElementById('weeklyTotalValue').textContent = totalWeeklyHours;
         }
 
         function updateHours(date, name, hours) {
